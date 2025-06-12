@@ -1,14 +1,11 @@
-import json
 import math
 from collections import Counter
-from pathlib import Path
 from typing import List
 
-from models.models import Document, DatasetMetrics, Token
+from models.models import Document, DatasetMetrics
 
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import silhouette_score
 
 
 def get_n_grams(items: list[str], n: int) -> list[str]:

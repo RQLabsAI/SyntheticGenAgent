@@ -20,12 +20,15 @@ class MapReduce:
             llm_call_collapse: Callable,
             llm_call_reduce: Callable,
     ):
+        """
+        Implementacja MapReduce do przetworzenia w zasadzie dowolnego ZADANIA na dowolnej wielkości zbioru danych
+        Bardzo się inspirowałem: https://arxiv.org/pdf/2410.09342 oraz https://github.com/thunlp/LLMxMapReduce?tab=readme-ov-file
+        """
         self.context_window = context_window
         self.map_prompt = map_prompt
         self.collapse_prompt = collapse_prompt
         self.reduce_prompt = reduce_prompt
         self.task = task
-        # self.llm_call = llm_call
         self.llm_call_map = llm_call_map
         self.llm_call_collapse = llm_call_collapse
         self.llm_call_reduce = llm_call_reduce
@@ -33,6 +36,10 @@ class MapReduce:
         self.nlp = spacy.load("pl_core_news_sm")
 
     def _chunk(self, texts: List[str]):
+        """
+        Funkcja do budowania chunków bazując na tokenach z modelów spacy.
+        Zrobiona tak, by ucinała na całym zdaniu.
+        """
         chunks = []
         current_chunk = []
 
@@ -46,9 +53,11 @@ class MapReduce:
                 word_count = sum(1 for token in sentence if not token.is_punct and not token.is_space)
 
                 if current_chunk_len + word_count <= self.context_window:
+                    # jeżeli mieści się w zdefiniowaną wielkość kontekstu
                     current_chunk.append(str(sentence))
                     current_chunk_len += word_count
                 else:
+                    # jeżeli nie mieści się w zdefiniowanej wielkości kontekstu
                     chunks.append("\n".join(map(lambda x: x.strip(), current_chunk)).strip())
                     current_chunk = [str(sentence)]
                     current_chunk_len = word_count
@@ -59,6 +68,12 @@ class MapReduce:
         return chunks
 
     def map(self, texts: List[str]) -> Tuple[List[str], int, int]:
+        """
+        Funkcja mapowania. Jest to pierwszy etap. Jej zadaniem jest wygenerować wyniki wykonując "task" na każdym chunku.
+
+        :param texts: teksty wejściowe
+        :return: wyniki przetwarzania, ilość tokenów wejsciowych, ilość tokenów wyjściowych
+        """
         chunks = self._chunk(texts)
 
         results = []
@@ -73,6 +88,13 @@ class MapReduce:
 
     @staticmethod
     def filter_out_samples(texts: List[str]) -> List[str]:
+        """
+        Prosta funkcja do filtrowania wyników. W prompcie Map powinniśmy napisać, że jeżeli model nie może zastosować wybranego "ZADANIA" do
+        podanego chunku, powinien zwrócić [BRAK INFORMACJI]. Takie próbki na etapie collapse/reduce można odfiltrować.
+
+        :param texts: wyniki przetwarzania z etapu Map
+        :return: odfiltrowane próbki
+        """
         return list(filter(lambda text: "[BRAK INFORMACJI]" not in text, texts))
 
     @staticmethod

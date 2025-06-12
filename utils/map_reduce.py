@@ -1,0 +1,139 @@
+from typing import List, Callable, Tuple
+
+import spacy
+from pydantic import BaseModel
+
+
+class Podsumowanie(BaseModel):
+    podsumowanie: str
+    ocena_jakosci: str
+
+class MapReduce:
+    def __init__(
+            self,
+            context_window: int,
+            map_prompt: str,
+            collapse_prompt: str,
+            reduce_prompt: str,
+            task: str,
+            llm_call_map: Callable,
+            llm_call_collapse: Callable,
+            llm_call_reduce: Callable,
+    ):
+        self.context_window = context_window
+        self.map_prompt = map_prompt
+        self.collapse_prompt = collapse_prompt
+        self.reduce_prompt = reduce_prompt
+        self.task = task
+        # self.llm_call = llm_call
+        self.llm_call_map = llm_call_map
+        self.llm_call_collapse = llm_call_collapse
+        self.llm_call_reduce = llm_call_reduce
+
+        self.nlp = spacy.load("pl_core_news_sm")
+
+    def _chunk(self, texts: List[str]):
+        chunks = []
+        current_chunk = []
+
+        for text in texts:
+            current_chunk = []
+            current_chunk_len = 0
+
+            doc = self.nlp(text)
+
+            for sentence in doc.sents:
+                word_count = sum(1 for token in sentence if not token.is_punct and not token.is_space)
+
+                if current_chunk_len + word_count <= self.context_window:
+                    current_chunk.append(str(sentence))
+                    current_chunk_len += word_count
+                else:
+                    chunks.append("\n".join(map(lambda x: x.strip(), current_chunk)).strip())
+                    current_chunk = [str(sentence)]
+                    current_chunk_len = word_count
+
+        if len(current_chunk) > 0:
+            chunks.append("\n".join(map(lambda x: x.strip(), current_chunk)).strip())
+
+        return chunks
+
+    def map(self, texts: List[str]) -> Tuple[List[str], int, int]:
+        chunks = self._chunk(texts)
+
+        results = []
+        total_in_tokens = 0
+        total_out_tokens = 0
+        for chunk in chunks:
+            result, in_tokens, out_tokens = self.llm_call_map(self.map_prompt.replace("{chunk}", chunk).replace("{task}", self.task))
+            results.append(result)
+            total_in_tokens += in_tokens
+            total_out_tokens += out_tokens
+        return results, total_in_tokens, total_out_tokens
+
+    @staticmethod
+    def filter_out_samples(texts: List[str]) -> List[str]:
+        return list(filter(lambda text: "[BRAK INFORMACJI]" not in text, texts))
+
+    @staticmethod
+    def build_wyniki(processed_outputs: List[str]) -> List[str]:
+        chunks_text = []
+        for i, chunk in enumerate(processed_outputs):
+            chunks_text.append(f""" --- WYNIK {i} --- \n {chunk} \n --- KONIEC WYNIKU {i} ---\n\n""")
+        return chunks_text
+
+
+    def collapse(self, processed_outputs: List[str]) -> Tuple[List[str], int, int]:
+        output_tokens = []
+
+        # Wywal teksty, które nie mają wymaganych informacji
+        processed_outputs = MapReduce.filter_out_samples(processed_outputs)
+
+        # podlicz ilości tokenów z wynikami z Map
+        for output in processed_outputs:
+            doc = self.nlp(output)
+            output_tokens.append(sum(1 for token in doc if not token.is_punct and not token.is_space))
+
+        # Jeżeli suma outputu jest mniejsza niż context window, to zwróc, to co dostałeś
+        if sum(output_tokens) < self.context_window:
+            return processed_outputs, 0, 0
+        else:
+            chunks = []
+
+            current_chunk = []
+            current_chunk_len = 0
+            for part, part_size in zip(processed_outputs, output_tokens):
+                if current_chunk_len + part_size <= self.context_window:
+                    current_chunk.append(part)
+                    current_chunk_len += part_size
+                else:
+                    chunks.append("\n".join(MapReduce.build_wyniki(current_chunk)))
+                    current_chunk = [part]
+                    current_chunk_len = part_size
+            if len(current_chunk) > 0:
+                chunks.append("\n".join(MapReduce.build_wyniki(current_chunk)))
+
+            processed_chunks = []
+            total_in_tokens = 0
+            total_out_tokens = 0
+            for chunk in chunks:
+                prompt = self.collapse_prompt.replace("{results}", chunk).replace("{task}", self.task)
+                processed_result, in_tokens, out_tokens = self.llm_call_collapse(prompt)
+                processed_chunks.append(processed_result)
+                total_in_tokens += in_tokens
+                total_out_tokens += out_tokens
+
+            return processed_chunks, total_in_tokens, total_out_tokens
+
+    def reduce(self, processed_outputs: List[str]) -> Tuple[str, int, int]:
+        results = "\n".join(MapReduce.build_wyniki(processed_outputs))
+
+        prompt = self.reduce_prompt.replace("{results}", results).replace("{task}", self.task)
+
+        return self.llm_call_reduce(prompt)
+
+    def mapreduce(self, texts: List[str]) -> Tuple[str, int, int]:
+        map_results, map_in_tokens, map_out_tokens = self.map(texts)
+        collapsed_results, collapsed_in_tokens, collapsed_out_tokens = self.collapse(map_results)
+        reduced_results, reduced_in_tokens, reduced_out_tokens = self.reduce(collapsed_results)
+        return reduced_results, (map_in_tokens + collapsed_in_tokens + reduced_in_tokens), (map_in_tokens + collapsed_out_tokens + reduced_out_tokens)

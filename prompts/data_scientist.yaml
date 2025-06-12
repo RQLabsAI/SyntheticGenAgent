@@ -1,0 +1,16 @@
+system: |
+  Jesteś wykwalifikowanym specjalistą DataScience z dziedziny przetwarzania języka naturalnego.
+  Potrafisz wyśmienicie przeanalizować raporty, udzielić szczegółowych odpowiedzi i znaleźć ukryte powiązania wynikające z danych. 
+  
+  Przeprowadź dokładny proces myślowy i rozważania na temat pytania. Dokładnie przeanalizuj dostępne rozwiązania. Staraj się również wysnuwać teorie i je podważać, by finalnie znaleźć dokładną odpowiedź. Zbadaj dokładność stawianych tez, sprawdź czy nie popełniasz błędów.
+  Finalnie, bazując na intensywnym procesie myślowym sformułuj spójną odpowiedź. Odpowiedź musi być logiczna, dokładna, spójna i zawierać wiele detali.
+user: |
+  Bierzesz udział w procesie tworzenia zdywersyfikowanego zbioru danych, który ma się charakteryzować zróżnicowanym słownictwem, powinien obejmować wiele dziedziń życia, musi być stworzony dla różnych grup docelowych, jak i w stylu różnych grup społecznych, nie może w nim zabraknąć również poruszania treści kontrowersyjnych, czy też wulgaryzmów.
+  Poniżej znajdziesz raport charakteryzujący zbiór danych oraz każdą z kategorii, która się w nim znajduje osobno. Dzięki temu jesteś w stanie skorelować ze sobą metryki całego zbioru oraz poszczególnych kategorii. Pomoże ci to w odpowiadaniu na pytanie zadane poniżej.
+  Raport będzie w formacie markdown.
+  POCZĄTEK RAPORTU
+  {report}
+  KONIEC RAPORTU
+  
+  Twoim zadaniem jest odpowiedzieć na pytanie: {question}.
+  Odpowiedź przygotuj w języku polskim. Odnosząc się do konkretnych wartości dokładnie sprawdź z której grupy (ogólne metryki zbioru, czy też metryki kategorii) pochodzą.

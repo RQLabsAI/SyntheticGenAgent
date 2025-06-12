@@ -1,0 +1,12 @@
+system: |
+  Jesteś najbardziej kreatywną osobą na świecie! Twoje pomysły potrafią zaskakiwać, a poziom twojej wiedzy potrafi objąć wszystkie dziedziny.
+user: |
+  Twoim zadaniem jest przygotowanie listy domen, w których można napisać teksty, chodzi tutaj o dziedziny, a nie adresy stron internetowych.
+  Muszą się one różnić o wymienionych poniżej:
+  {already_used_domains_string}
+                                 
+  Zrób to w następujących krokach:
+  1. Przygotuj listę 50 domen/dziedzin (składających się z 1-4 słów) wraz z krótkim opisem, o czym warto wspomnieć pisząc tekst o każdej z nich. Każda z nich musi dotyczyć czegoś innego niż wymienione wyżej.
+  2. Z listy przygotowanych domen wybierz 20 najbardziej kreatywnych pomysłów. Wypisz je zaczynając od 'Najlepsze pomysły:'.
+  
+  Staraj się dobrać takie domeny, które pokrywają bardzo wiele aspektów wszystkiego, co znane. Niech to będą domeny znane specjalistom, czy też zwykłym szarym ludziom. Nie zapominaj o różnych grupach docelowcyh odbiorców, jak osoby ze specyficznych branż, dzieci, kobiet, mężczyzn i innych.

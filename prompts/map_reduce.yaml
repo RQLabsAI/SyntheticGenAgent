@@ -1,0 +1,73 @@
+map: |
+  Poniżej przedstawię ci pewną część większego tekstu oraz zadanie, które masz wykonać korzystając z fragmentu tekstu. Przeczytaj dokładnie fragmenty tekstu oraz wykonaj podane zadanie.
+  # Fragmenty
+  {chunk}
+  # Koniec fragmentów tekstu
+
+  # Zadanie
+  {task}
+  # Koniec zadania
+
+  # Instrukcje
+  - Dokładnie przeczytaj cały fragment
+  - Wykonaj zlecone zadanie
+  - Jeżeli nie możesz udzielić odpowiedzi na podane zadanie dla fragmentu tekstu zwróć tylko "[BRAK INFORMACJI]"
+  - Pamiętaj, że pracujesz tylko na części tekstu, więc twoja odpowiedź może bazować tylko i wyłącznie na podanym fragmencie.
+  - Zacznij swoją odpowiedź na podane zadanie od "Odpowiedź:"
+  - Podaj w skali od 0 do 5, jak dobra jest twoja odpowiedź. Punkt odniesienia:
+      Tekst: Jerzy kończy 18 lat w tym roku. Umie on pływać i chce być sportowcem.
+      Skala dla odpowiedzi:
+          Jerzy umie pływać - 5 punktów
+          Jerzy będzie sportowcem w przyszłości - 3.5 punktów
+          Jerzy będzie pływającym sportowcem w przyszłości - 3 punkty
+          Jerzy jest silny - 3 punkty
+          Jerzy umie grać w szachy - 0 punktów
+          Jerzy lubi rozmawiać - 0 punktów
+      Zacznij swoją odpowiedź od "Jakość odpowiedzi:"
+collapse: |
+  Twoim zadaniem jest przetworzenie długiego tekstu, który przekracza limity, które posiadasz. Jedyną możliwością jest przetwarzanie długiego tekstu fragmentami.
+  W poprzednim kroku wykonałem zadanie na małych fragmentach tekstu. Poniżej przedstawię ci te wyniki oraz treść zadania. Przeczytaj wyniki oraz wykonaj odpowiednie zadanie.
+
+  # Wyniki przetwarzania fragmentów
+  {results}
+  # Koniec fragmentów tekstu
+
+  # Zadanie
+  {task}
+  # Koniec zadania
+
+  # Instrukcje
+  - Przeczytaj wyniki z przetwarzania z poprzedniego kroku
+  - Wykonaj zdefiniowane zadanie
+  - Wszystkie odpowiedzi zostały wcześniej ocenione. Ocena ta opisuje, jak dobra odpowiedź dla każdego fragmentu została przygotowana. Ocena 5 oznacza najwyższej jakości odpowiedzi.
+  - Pamiętaj, że pracujesz na fragmentach tekstu, a nie na całym tekście
+  - Zacznij swoją odpowiedź od "Odpowiedź:"
+  - Podaj w skali od 0 do 5, jak dobra jest twoja odpowiedź. Punkt odniesienia:
+      Tekst: Jerzy kończy 18 lat w tym roku. Umie on pływać i chce być sportowcem.
+      Skala dla odpowiedzi:
+          Jerzy umie pływać - 5 punktów
+          Jerzy będzie sportowcem w przyszłości - 3.5 punktów
+          Jerzy będzie pływającym sportowcem w przyszłości - 3 punkty
+          Jerzy jest silny - 3 punkty
+          Jerzy umie grać w szachy - 0 punktów
+          Jerzy lubi rozmawiać - 0 punktów
+      Zacznij swoją odpowiedź od "Jakość odpowiedzi:"
+  - Jeżeli nie możesz wykonać zadania dla podanego fragmentu tekstu zwróć "[BRAK INFORMACJI]"
+reduce: |
+  Żeby przetworzyć bardzo długi tekst musiałem podzielić go na części i przetwarzać każdą z nich po kolei. Poniżej przedstawię ci wyniki, jakie uzyskałem z przetwarzania długiego tekstu fragmentami oraz zadanie, jakie było do wykonania.
+  Każda odpowiedź zawiera "Odpowiedź" oraz "Jakość odpowiedzi", która opisuje, jak dobrze odpowiedź została przygotowana. Przeczytaj dokładnie otrzymane wyniki i wykonaj zadanie.
+
+  # Zadanie
+  {task}
+  # Koniec zadania
+
+  # Wyniki przetwarzania
+  {results}
+  # Koniec wyników przetwarzania
+
+  # Instrukcje
+  - Przeglądając wyniki przetwarzania twoim zadaniem jest przeanalizować wszystkie detale, by stworzyć jedną spójną i dokładną odpowiedź na podane Zadanie. Proces ten wymaga przetworzenia wyników oraz uzyskanych jakości odpowiedzi poprzez wnikliwą analizę wyników i pozbywanie się niespójności.
+  - Użyj wyników jakości odpowiedzi, by priorytetyzować odpowiedzi z wysokim wynikiem.
+  - Zacznij swoją odpowiedź od "Odpowiedź:"
+task: |
+  Podsumuj powyższe teksty w kilku słowach. O czym one są? Dodatkowo opisz styl w jakim został każdy z nich napisany, jaka jest grupa docelowa, jakie charakterystyczne cechy reprezentuje? Przygotuj kompleksową analizę pomimo różnorodności każdego z nich. Rozpisz się trochę na ich temat. Im więcej informacji wymienisz tym lepiej.

@@ -1,0 +1,10 @@
+system: |
+  Jesteś specjalistą w dziedzinie {domain}
+user: |
+  Przygotuj tekst z domeny/dziedziny {domain}.
+  Oto punkty kluczowe, które musisz uwzględnić: {key_points}.
+  Pamiętaj też o: {additional_notes}.
+  Twoją grupą docelową jest: {target_audience}.
+  Napisz to w następującym stylu: {style}. 
+  
+  Odpowiedz jedynie tekstem, który stworzysz.

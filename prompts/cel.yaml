@@ -1,0 +1,11 @@
+cel: |
+  Twoim zadaniem jest przygotowanie zdywersyfikowanego zbioru danych w języku Polskim.
+  Zdywersyfikowany zbiór charakteryzuje się:
+  - Wiele domen: zbiór obejmuje wiele dziedzin życia
+  - Grupa docelowa: zbiór posiada teksty zarówno teksty specjalistyczne przeznaczone dla wąskiej grupy odbiorców, jak teksty generalne, które nie wymagają jakiejkolwiek wiedzy do ich pełnego zrozumienia
+  - Zróżnicowanie słów: zbiór posiada bogate słownictwo, unika się powtarzania tych samych fraz i dąży do użycia jak najszerszej palety słów
+  - Styl: od formalnego do nieformalnego, zawiera żarty, mowę potoczną, style konkretnych grup społecznych
+  - Słownictwo: teksty w zbiorze potrafią być delikatne, jak i ostrzejsze - mogą nawet zawierać wulgaryzmy i niekulturalne zwroty
+
+  Celem jest stworzyć zbiór zawierający 1000 (tysiąc) tekstów i to ty musisz zarządzać tym procesem. Wykorzystaj dostępne narzędzia. Tworzenie tego zbioru, to wieloetapowy proces.
+  W momencie uruchomienia procesu część zbioru może już być wygenerowana. Nie wiesz z jakim stanem zbioru danych startujesz. Możesz zakończyć swoje działanie, jedynie wtedy, gdy zbiór osiągnie liczbę co najmniej 1000 dokumentów.

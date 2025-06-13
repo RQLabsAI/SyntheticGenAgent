@@ -1,21 +1,27 @@
-import json
 import math
 from collections import Counter
-from pathlib import Path
 from typing import List
 
-from models.models import Document, DatasetMetrics, Token
+from models.models import Document, DatasetMetrics
 
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import silhouette_score
 
 
 def get_n_grams(items: list[str], n: int) -> list[str]:
+    """
+    Wygeneruj n-gramy
+    """
     return [" ".join(items[i: i + n]) for i in range(len(items) - n + 1)]
 
 
 def format_report(metrics: DatasetMetrics, with_domains=True):
+    """
+    Funkcja generująca raport, który następnie trafia do DataScientista
+    Jest on rozbity na dwa warianty:
+    - raport tylko dla całego zbioru danych
+    - raport dla całego zbioru + osobne metryki dla każdej z domen
+    """
     output = f"""# Dataset metrics
 ## Total
 Number of documents present in the dataset: {metrics.number_of_docs}
@@ -85,6 +91,12 @@ Shannon entropy: {round(metrics.domain_shannon_entropy[domain], 4)}
 
 
 def get_dataset_metrics(docs: List[Document]) -> DatasetMetrics:
+    """
+    Funkcja budująca metryki zbioru
+
+    :param docs: lista dokumentów
+    :return: Obiekt z metrykami
+    """
     # Prepare text corpus and domain labels for silhouette
     corpus = []
     labels = []
@@ -100,9 +112,6 @@ def get_dataset_metrics(docs: List[Document]) -> DatasetMetrics:
     vectorizer = TfidfVectorizer()
     tfidf_matrix = vectorizer.fit_transform(corpus)
     feature_names = vectorizer.get_feature_names_out()
-
-    # Silhouette score (cosine)
-    # sil_score = silhouette_score(tfidf_matrix, labels, metric='cosine')
 
     # Compute average TF–IDF
     avg_tfidf = np.asarray(tfidf_matrix.mean(axis=0)).ravel()
@@ -361,7 +370,6 @@ def get_dataset_metrics(docs: List[Document]) -> DatasetMetrics:
         domain_most_frequent_5_grams=domain_most_frequent_5_grams,
         domain_most_frequent_6_grams=domain_most_frequent_6_grams,
         dataset_top_tfidf=dataset_top_tfidf,
-        # domain_top_tfidf={d: {feature_names[i]: float(round(np.asarray(tfidf_matrix[idxs].mean(axis=0)).ravel()[i],4)) for i in np.argsort(np.asarray(tfidf_matrix[idxs].mean(axis=0)).ravel())[::-1][:20]} for d, idxs in {d: [i for i,doc in enumerate(docs) if doc.domain==d] for d in domains}.items()},
         dataset_styles=dataset_style_counter,
         dataset_target_audience=dataset_target_audience_counter,
         domain_styles={d: dict(domain_style_counter[d].most_common()) for d in domain_style_counter.keys()},

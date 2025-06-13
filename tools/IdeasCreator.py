@@ -11,7 +11,7 @@ from ollama import Client
 from smolagents import Tool
 
 from models.models import Token, Document
-from settings import OLLAMA_URL, IDEAS_CREATOR_MODEL
+from settings import OLLAMA_URL, IDEAS_CREATOR_MODEL, JSON_OUTPUT_PATH
 from utils.utils import get_dataset_metrics, format_report
 
 
@@ -25,8 +25,9 @@ class CreateDomainIdeas(Tool):
     output_type = "string"
 
     def forward(self,):
+        # iteracja po istniejących dokumentach
         docs = []
-        for file in Path("./generateddata").glob("*.json"):
+        for file in Path(JSON_OUTPUT_PATH).glob("*.json"):
             with open(file, "r", encoding="utf8") as f:
                 data = json.loads(f.read())
                 doc = Document(
@@ -39,6 +40,8 @@ class CreateDomainIdeas(Tool):
                     target_audience=data["target_audience"],
                 )
                 docs.append(doc)
+
+        # stworzenie zbioru domen, które ją są w użyciu
         already_used_domains = set([doc.domain for doc in docs])
         if len(already_used_domains) > 0:
             already_used_domains_string = '\n'.join(already_used_domains)
@@ -67,6 +70,7 @@ class CreateDomainIdeas(Tool):
 
         res_content = response["message"]["content"]
 
+        # rozdzielenie początkowych pomysłów od tych najlepszych
         if "Najlepsze pomysły:" in res_content:
             odpowiedz = res_content.split("Najlepsze pomysły:")[1]
         else:

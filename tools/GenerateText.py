@@ -17,7 +17,6 @@ from models.models import Token
 from settings import JSON_OUTPUT_PATH, SAVE_MARKDOWN_FILES, MARKDOWN_OUTPUT_PATH, OLLAMA_URL, TEXT_GENERATOR_MODEL, \
     MAP_REDUCE_MODEL, MAP_REDUCE_CONTEXT_WINDOW
 from utils.map_reduce import MapReduce
-from utils.utils import get_dataset_metrics, format_report
 
 class Podsumowanie(BaseModel):
     podsumowanie: str
@@ -36,6 +35,7 @@ class GenerateNewDocument(Tool):
                    'obecnego zbioru danych. Jeden obiekt w liście argumentów = jeden tekst, który zostanie dodany do zbioru danych. Wszystkie atrybuty '
                    'obiektu muszą opisywać tylko jeden tekst. Korzystaj z listy wielu obiektów, by tworzyć zdywersyfikowane treści.')
 
+    # chcemy na raz generować wiele tekstów, dlatego wejścia do tej funkcji, to lista atrybutów tekstów, które mają być stworzone
     inputs = {
         "texts_to_generate": {
             "type": "array",
@@ -68,7 +68,7 @@ class GenerateNewDocument(Tool):
     output_type = "array"
 
     def forward(self, texts_to_generate: List[dict]):
-        # checks
+        # szybkie sprawdzenie, warto to zrobić, gdyż czasami dochodziło do sytuacji, gdzie Manager podawał, że należy stworzyć jeden tekst, który jako domenę ma "wiele domen"
         for i, text in enumerate(texts_to_generate):
             if "domain" not in text.keys():
                 raise Exception(f"W obiekcie {i} brakuje klucza 'domain'")
@@ -81,16 +81,6 @@ class GenerateNewDocument(Tool):
 
             if "key_points" not in text.keys():
                 raise Exception(f"W obiekcie {i} brakuje klucza 'key_points'")
-
-        texts_to_generate_text_log = []
-        for text in texts_to_generate:
-            texts_to_generate_text_log.append(f"Domena: {text['domain']}")
-            texts_to_generate_text_log.append(f"Kluczowe punkty: {text['key_points']}")
-            texts_to_generate_text_log.append(f"Uwagi: {text['additional_notes']}")
-            texts_to_generate_text_log.append(f"Grupa docelowa: {text['target_audience']}")
-            texts_to_generate_text_log.append(f"Styl: {text['style']}")
-            texts_to_generate_text_log.append("")
-
 
         nlp = spacy.load('pl_core_news_sm')
 
@@ -126,6 +116,7 @@ class GenerateNewDocument(Tool):
             output_text = response["message"]["content"]
             generated_texts.append(output_text)
 
+            # przygotuj metryki dokumentu
             doc = nlp(output_text)
 
             # count words
@@ -157,6 +148,7 @@ class GenerateNewDocument(Tool):
                 "model": TEXT_GENERATOR_MODEL
             }
 
+            # zapisz
             json_path = Path(JSON_OUTPUT_PATH)
             json_path.mkdir(parents=True, exist_ok=True)
             json_file_path = json_path / f"{md5_hash}.json"
@@ -172,10 +164,12 @@ class GenerateNewDocument(Tool):
                 with open(markdown_file_path, "w") as f:
                     f.write(output_text)
 
+        # przygotowanie podsumowania wygenerowanych tekstów
         prompts_map_reduce = yaml.safe_load(importlib.resources.files("prompts").joinpath("map_reduce.yaml").read_text())
 
         task = prompts_map_reduce["task"]
 
+        # zdefiniowanie funkcji do zrobienia zapytania LLM
         def llm_call(prompt):
             res = client.chat(
                 model=MAP_REDUCE_MODEL,
@@ -193,6 +187,7 @@ class GenerateNewDocument(Tool):
             )
             return res.message.content, res.prompt_eval_count, res.eval_count
 
+        # osobna funkcja, która wymaga konkretnego formatu zwrotki - STRUCTURED OUTPUT
         def llm_call_format(prompt):
             res = client.chat(
                 model=MAP_REDUCE_MODEL,

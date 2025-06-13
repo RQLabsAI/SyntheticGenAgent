@@ -7,11 +7,18 @@ from litellm import completion
 from smolagents import Tool
 
 from models.models import Document, Token
-from settings import ANALYST_MODEL
+from settings import ANALYST_MODEL, JSON_OUTPUT_PATH
 from utils.utils import get_dataset_metrics, format_report
 
 
 def ask_reasoning_model(question: str, report: str) -> str:
+    """
+    Odpytywanie modelu wnioskującego. Przyjmuje na wejściu pytanie oraz wygenerowany raport metryk.
+
+    :param question: pytanie na jakie model ma odpowiedzieć
+    :param report: wygenerowany raport
+    :return: odpowiedź na pytanie
+    """
     prompts = yaml.safe_load(importlib.resources.files("prompts").joinpath("data_scientist.yaml").read_text())
 
     response = completion(
@@ -27,7 +34,6 @@ def ask_reasoning_model(question: str, report: str) -> str:
             }
         ],
     )
-
 
     output_text = response.choices[0].message.content
 
@@ -50,8 +56,9 @@ class AnalyzeMetrics(Tool):
     output_type = "string"
 
     def forward(self, question):
+        # w pierwszym kroku zbierz wszystkie dokumenty w formacie JSON
         docs = []
-        for file in Path("./generateddata").glob("*.json"):
+        for file in Path(JSON_OUTPUT_PATH).glob("*.json"):
             with open(file, "r", encoding="utf8") as f:
                 data = json.loads(f.read())
                 doc = Document(
@@ -65,6 +72,7 @@ class AnalyzeMetrics(Tool):
                 )
                 docs.append(doc)
 
+        # jeżeli zbiór danych nie jest pusty, wygeneruj raport
         if len(docs) > 0:
             metrics = get_dataset_metrics(docs)
 
@@ -72,6 +80,10 @@ class AnalyzeMetrics(Tool):
                 question,
                 format_report(metrics)
             ) + f"\n\n Aktualnie w zbiorze danych znajduje się {len(docs)} dokumentów."
+        # jeżeli zbiór jest pusty, niech model  odpowie, że jest to zbiór pusty
+        # w zasadzie można by też zwrócić od razu odpowiedź, że zbiór jest pusty,
+        # ale zostawiłem to, by odpowiedź była lepiej przygotowana do konkretnego
+        # pytania
         return ask_reasoning_model(
             question,
             "Zbiór danych jest pusty. Metryki nie zostały wyliczone."

@@ -99,6 +99,12 @@ class MapReduce:
 
     @staticmethod
     def build_wyniki(processed_outputs: List[str]) -> List[str]:
+        """
+        Przygotuj tekst wejściowy dla etapu Collapse/Reduce
+
+        :param processed_outputs: lista wyników z etapu Map
+        :return: lista tekstów
+        """
         chunks_text = []
         for i, chunk in enumerate(processed_outputs):
             chunks_text.append(f""" --- WYNIK {i} --- \n {chunk} \n --- KONIEC WYNIKU {i} ---\n\n""")
@@ -106,6 +112,12 @@ class MapReduce:
 
 
     def collapse(self, processed_outputs: List[str]) -> Tuple[List[str], int, int]:
+        """
+        Etap collapse - zagreguj trochę wyniki Map, by do Collapse mogły wejść wszystkie na raz
+
+        :param processed_outputs: przetworzone wyniki Map
+        :return: lista tekstów po przetworzeniu
+        """
         output_tokens = []
 
         # Wywal teksty, które nie mają wymaganych informacji
@@ -116,15 +128,17 @@ class MapReduce:
             doc = self.nlp(output)
             output_tokens.append(sum(1 for token in doc if not token.is_punct and not token.is_space))
 
-        # Jeżeli suma outputu jest mniejsza niż context window, to zwróc, to co dostałeś
+        # Jeżeli suma outputu jest mniejsza niż context window, to zwróć, to co dostałeś
         if sum(output_tokens) < self.context_window:
             return processed_outputs, 0, 0
         else:
+            # w przeciwnym wypadku zbuduj chunki i je przetwórz
             chunks = []
 
             current_chunk = []
             current_chunk_len = 0
             for part, part_size in zip(processed_outputs, output_tokens):
+                # wypełnij context window
                 if current_chunk_len + part_size <= self.context_window:
                     current_chunk.append(part)
                     current_chunk_len += part_size
@@ -148,6 +162,12 @@ class MapReduce:
             return processed_chunks, total_in_tokens, total_out_tokens
 
     def reduce(self, processed_outputs: List[str]) -> Tuple[str, int, int]:
+        """
+        Etap reduce - ma za zadanie ogarnąć jedną uwspólnioną odpowiedź na podane zadanie
+
+        :param processed_outputs: wyniki pochodzące z etapu Collapse/Map
+        :return: finalna odpowiedź
+        """
         results = "\n".join(MapReduce.build_wyniki(processed_outputs))
 
         prompt = self.reduce_prompt.replace("{results}", results).replace("{task}", self.task)
@@ -155,6 +175,12 @@ class MapReduce:
         return self.llm_call_reduce(prompt)
 
     def mapreduce(self, texts: List[str]) -> Tuple[str, int, int]:
+        """
+        Jedna funkcja, która dokonuje całego procesu MapReduce
+
+        :param texts: teksty do przetworzenia
+        :return: przetworzone wyniki
+        """
         map_results, map_in_tokens, map_out_tokens = self.map(texts)
         collapsed_results, collapsed_in_tokens, collapsed_out_tokens = self.collapse(map_results)
         reduced_results, reduced_in_tokens, reduced_out_tokens = self.reduce(collapsed_results)

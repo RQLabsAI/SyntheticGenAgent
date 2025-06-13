@@ -43,7 +43,8 @@ Projekt wykorzystuje podejście MapReduce do generowania podsumowań wygenerowan
 
 # Jak uruchomić projekt?
 1. Dodaj swój klucz OpenAI do pliku zmiennych środowiskowych .env
-2. Zainstaluj wymagane biblioteki
+2. Dostosuj ustawienia w settings.py
+3. Zainstaluj wymagane biblioteki
 ```
 # Przy użyciu uv
 uv sync
@@ -51,7 +52,21 @@ uv sync
 # Przy użyciu pip
 pip install -r requirements.txt
 ```
-3. Uruchom rozwiązanie
+4. Uruchom rozwiązanie
 ```
 python main.py
 ```
+
+# Znane problemy/limity
+- Im dłużej generowanie danych działa, tym więcej wiadomości odkłada się w historii Managera, co prowadzi do dużego zużycia tokenów
+- Pomysłodawca po pewnym czasie może odmówić wykonania zadania, gdyż zbiór danych pokrywa tyle domen, że nie jest w stanie wymyślić nowej
+- Generowane dane nie mają weryfikowanej jakości, a więc mogą tam występować halucynacje, tworzenie tekstów nie zgodnych z prawdą itp.
+- Im większy zbiór danych, tym większy raport otrzymuje DataScientist i może on się nie zmieścić w jego okno kontekstowe
+
+# Dalszy rozwój
+- Ocena jakości generowanych tekstów
+- Rozbudowanie pomysłodawcy, by zawsze coś wymyślił
+- Naprawienie przypadku zbyt dużych raportów, które ma przetworzyć DataScientist
+
+# Dodatkowe informacje
+Więcej szczegółów o działaniu systemu i jego rozwoju zamieszczam na blogu: https://ai.rqlabs.space/blog

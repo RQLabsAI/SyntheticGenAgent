@@ -11,7 +11,7 @@ dependencies = [
     "pyaml>=25.5.0",
     "python-dotenv>=1.1.0",
     "scikit-learn>=1.7.0",
-    "smolagents[toolkit,tools]>=1.17.0",
+    "smolagents[toolkit]>=1.17.0",
     "spacy>=3.8.7",
 ]
 
